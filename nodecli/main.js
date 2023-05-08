@@ -1,6 +1,6 @@
 import { program } from "commander";
 import * as fs from "node:fs/promises";
-import { marked } from "marked";
+import { md2html } from "./md2html.js";
 
 program.option("--gfm", "GFMを有効にする");
 program.parse(process.argv);
@@ -11,14 +11,13 @@ const options = program.opts();
 
 // コマンドライン引数で指定されなかったオプションにデフォルト値を上書きする
 const cliOptions = {
-    gfm: options.gfm ?? false,
+    gfm: false,
+    ...program.opts();
 };
 
 // ファイルをUTF-8として非同期で読み込む
 fs.readFile(filePath, { encoding: "utf8" }).then(file => {
-  const html = marked.parse(file, {
-    gfm: cliOptions.gfm,
-  });
+  const html = md2html(file, cliOptions);
   console.log(html);
 }).catch(err => {
   console.error(err.message);
